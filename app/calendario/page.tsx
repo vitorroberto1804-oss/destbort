@@ -43,6 +43,7 @@ interface CalendarDay {
     bills: number
     medications: number
     appointments: number
+    isHighPriority: boolean
   }
 }
 
@@ -114,14 +115,18 @@ export default function CalendarioPage() {
   }, [currentDate, tasks, transactions, medications, appointments, today])
 
   function getEventsForDate(dateString: string) {
+    const dateTasks = tasks.filter((t) => t.dueDate === dateString)
+    const dateBills = transactions.filter(
+      (t) => t.type === "expense" && (t.dueDate === dateString || t.date === dateString)
+    )
+    const dateAppointments = appointments.filter((a) => a.date === dateString)
+    
     return {
-      tasks: tasks.filter((t) => t.dueDate === dateString).length,
-      bills: transactions.filter(
-        (t) =>
-          t.type === "expense" && (t.dueDate === dateString || t.date === dateString)
-      ).length,
-      medications: medications.length > 0 ? 1 : 0, // Medications are daily
-      appointments: appointments.filter((a) => a.date === dateString).length,
+      tasks: dateTasks.length,
+      bills: dateBills.length,
+      medications: medications.length > 0 ? 1 : 0,
+      appointments: dateAppointments.length,
+      isHighPriority: dateTasks.some(t => t.priority === "high") || dateBills.some(b => !b.paid)
     }
   }
 
@@ -263,7 +268,7 @@ export default function CalendarioPage() {
                           {hasEvents && !isSelected && (
                             <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-0.5">
                               {day.events.tasks > 0 && (
-                                <div className="h-1 w-1 rounded-full bg-primary" />
+                                <div className={cn("h-1 w-1 rounded-full bg-primary", day.events.isHighPriority && "ring-1 ring-primary ring-offset-1")} />
                               )}
                               {day.events.bills > 0 && (
                                 <div className="h-1 w-1 rounded-full bg-destructive" />
@@ -272,6 +277,9 @@ export default function CalendarioPage() {
                                 <div className="h-1 w-1 rounded-full bg-chart-3" />
                               )}
                             </div>
+                          )}
+                          {day.events.isHighPriority && !isSelected && (
+                            <div className="absolute top-1 right-1 h-1.5 w-1.5 rounded-full bg-destructive animate-pulse" />
                           )}
                         </button>
                       )

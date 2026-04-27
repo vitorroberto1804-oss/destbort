@@ -33,6 +33,7 @@ export default function MetasPage() {
   const [targetValue, setTargetValue] = useState("")
   const [currentValue, setCurrentValue] = useState("0")
   const [deadline, setDeadline] = useState("")
+  const [category, setCategory] = useState("Pessoal")
 
   const activeGoals = useMemo(() => {
     return goals.filter((g) => g.status === "in-progress")
@@ -56,6 +57,7 @@ export default function MetasPage() {
     setTargetValue("")
     setCurrentValue("0")
     setDeadline("")
+    setCategory("Pessoal")
     setEditingGoal(null)
   }
 
@@ -73,6 +75,7 @@ export default function MetasPage() {
     setTargetValue(goal.targetValue.toString())
     setCurrentValue(goal.currentValue.toString())
     setDeadline(goal.deadline || "")
+    setCategory(goal.description?.split(" [Cat: ")[1]?.replace("]", "") || "Pessoal")
     setIsOpen(true)
   }
 
@@ -97,7 +100,7 @@ export default function MetasPage() {
 
     const goalData = {
       title,
-      description: description || undefined,
+      description: description ? `${description} [Cat: ${category}]` : `[Cat: ${category}]`,
       targetValue: parseFloat(targetValue),
       currentValue: parseFloat(currentValue) || 0,
       deadline: deadline || undefined,
@@ -225,17 +228,36 @@ export default function MetasPage() {
                       </div>
                     </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="deadline" className="text-card-foreground">
-                        Data Limite (opcional)
-                      </Label>
-                      <Input
-                        id="deadline"
-                        type="date"
-                        value={deadline}
-                        onChange={(e) => setDeadline(e.target.value)}
-                        className="bg-secondary border-border text-foreground"
-                      />
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="deadline" className="text-card-foreground">
+                          Data Limite (opcional)
+                        </Label>
+                        <Input
+                          id="deadline"
+                          type="date"
+                          value={deadline}
+                          onChange={(e) => setDeadline(e.target.value)}
+                          className="bg-secondary border-border text-foreground"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="category" className="text-card-foreground">
+                          Categoria
+                        </Label>
+                        <Select value={category} onValueChange={setCategory}>
+                          <SelectTrigger className="bg-secondary border-border text-foreground">
+                            <SelectValue placeholder="Selecione" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-card border-border">
+                            <SelectItem value="Pessoal">Pessoal</SelectItem>
+                            <SelectItem value="Financeira">Financeira</SelectItem>
+                            <SelectItem value="Saúde">Saúde</SelectItem>
+                            <SelectItem value="Trabalho">Trabalho</SelectItem>
+                            <SelectItem value="Educação">Educação</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
 
                     <Button

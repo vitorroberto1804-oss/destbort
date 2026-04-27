@@ -50,6 +50,7 @@ export default function FinanceiroPage() {
   const [date, setDate] = useState(new Date().toISOString().split("T")[0])
   const [dueDate, setDueDate] = useState("")
   const [paid, setPaid] = useState(true)
+  const [recurring, setRecurring] = useState<"none" | "monthly" | "weekly">("none")
 
   // Cálculos
   const balance = useMemo(() => {
@@ -94,6 +95,7 @@ export default function FinanceiroPage() {
     setDate(new Date().toISOString().split("T")[0])
     setDueDate("")
     setPaid(true)
+    setRecurring("none")
     setEditingTransaction(null)
   }
 
@@ -113,6 +115,7 @@ export default function FinanceiroPage() {
     setDate(transaction.date)
     setDueDate(transaction.dueDate || "")
     setPaid(transaction.paid)
+    setRecurring(transaction.recurring || "none")
     setIsOpen(true)
   }
 
@@ -128,6 +131,7 @@ export default function FinanceiroPage() {
       date,
       dueDate: dueDate || undefined,
       paid,
+      recurring,
     }
 
     if (editingTransaction) {
@@ -287,20 +291,34 @@ export default function FinanceiroPage() {
                         />
                       </div>
 
-                      {type === "expense" && (
-                        <div className="space-y-2">
-                          <Label htmlFor="dueDate" className="text-card-foreground">
-                            Vencimento
-                          </Label>
-                          <Input
-                            id="dueDate"
-                            type="date"
-                            value={dueDate}
-                            onChange={(e) => setDueDate(e.target.value)}
-                            className="bg-secondary border-border text-foreground"
-                          />
-                        </div>
-                      )}
+                      <div className="space-y-2">
+                        <Label htmlFor="recurring" className="text-card-foreground">
+                          Recorrência
+                        </Label>
+                        <Select value={recurring} onValueChange={(v: any) => setRecurring(v)}>
+                          <SelectTrigger className="bg-secondary border-border text-foreground">
+                            <SelectValue placeholder="Selecione" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-card border-border">
+                            <SelectItem value="none">Nenhuma</SelectItem>
+                            <SelectItem value="weekly">Semanal</SelectItem>
+                            <SelectItem value="monthly">Mensal</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="dueDate" className="text-card-foreground">
+                        Data de Vencimento (Lembrete)
+                      </Label>
+                      <Input
+                        id="dueDate"
+                        type="date"
+                        value={dueDate}
+                        onChange={(e) => setDueDate(e.target.value)}
+                        className="bg-secondary border-border text-foreground"
+                      />
                     </div>
 
                     {type === "expense" && (
@@ -502,6 +520,9 @@ export default function FinanceiroPage() {
                                 {new Date(transaction.date).toLocaleDateString("pt-BR")}
                                 {transaction.type === "expense" && !transaction.paid && (
                                   <span className="ml-2 text-destructive">Pendente</span>
+                                )}
+                                {transaction.recurring && transaction.recurring !== "none" && (
+                                  <span className="ml-2 text-primary">({transaction.recurring})</span>
                                 )}
                               </p>
                             </div>

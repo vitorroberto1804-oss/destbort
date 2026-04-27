@@ -41,6 +41,8 @@ export default function TarefasPage() {
   const [priority, setPriority] = useState<"low" | "medium" | "high">("medium")
   const [dueDate, setDueDate] = useState("")
   const [dueTime, setDueTime] = useState("")
+  const [category, setCategory] = useState("Geral")
+  const [reminder, setReminder] = useState(false)
 
   const filteredTasks = useMemo(() => {
     let filtered = [...tasks]
@@ -79,6 +81,8 @@ export default function TarefasPage() {
     setPriority("medium")
     setDueDate("")
     setDueTime("")
+    setCategory("Geral")
+    setReminder(false)
     setEditingTask(null)
   }
 
@@ -96,6 +100,8 @@ export default function TarefasPage() {
     setPriority(task.priority)
     setDueDate(task.dueDate || "")
     setDueTime(task.dueTime || "")
+    setCategory(task.category || "Geral")
+    setReminder(task.reminder || false)
     setIsOpen(true)
   }
 
@@ -110,6 +116,8 @@ export default function TarefasPage() {
         priority,
         dueDate: dueDate || undefined,
         dueTime: dueTime || undefined,
+        category,
+        reminder,
       })
     } else {
       addTask({
@@ -119,6 +127,8 @@ export default function TarefasPage() {
         priority,
         dueDate: dueDate || undefined,
         dueTime: dueTime || undefined,
+        category,
+        reminder,
       })
     }
 
@@ -235,17 +245,47 @@ export default function TarefasPage() {
                       </div>
                     </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="dueTime" className="text-card-foreground">
-                        Horário (opcional)
-                      </Label>
-                      <Input
-                        id="dueTime"
-                        type="time"
-                        value={dueTime}
-                        onChange={(e) => setDueTime(e.target.value)}
-                        className="bg-secondary border-border text-foreground"
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="category" className="text-card-foreground">
+                          Categoria
+                        </Label>
+                        <Select value={category} onValueChange={setCategory}>
+                          <SelectTrigger className="bg-secondary border-border text-foreground">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="bg-card border-border">
+                            <SelectItem value="Geral">Geral</SelectItem>
+                            <SelectItem value="Trabalho">Trabalho</SelectItem>
+                            <SelectItem value="Pessoal">Pessoal</SelectItem>
+                            <SelectItem value="Estudo">Estudo</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="dueTime" className="text-card-foreground">
+                          Horário (opcional)
+                        </Label>
+                        <Input
+                          id="dueTime"
+                          type="time"
+                          value={dueTime}
+                          onChange={(e) => setDueTime(e.target.value)}
+                          className="bg-secondary border-border text-foreground"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="reminder"
+                        checked={reminder}
+                        onCheckedChange={(checked) => setReminder(checked as boolean)}
+                        className="border-primary data-[state=checked]:bg-primary"
                       />
+                      <Label htmlFor="reminder" className="text-card-foreground">
+                        Ativar lembrete para esta tarefa
+                      </Label>
                     </div>
 
                     <Button

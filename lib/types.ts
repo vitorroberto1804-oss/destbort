@@ -8,6 +8,8 @@ export interface Task {
   priority: "low" | "medium" | "high"
   dueDate?: string
   dueTime?: string
+  category?: string
+  reminder?: boolean
   createdAt: string
 }
 
@@ -20,6 +22,7 @@ export interface Transaction {
   date: string
   paid: boolean
   dueDate?: string
+  recurring?: "none" | "monthly" | "weekly"
   jobId?: string // Referência ao trabalho, se for receita de trabalho
 }
 
